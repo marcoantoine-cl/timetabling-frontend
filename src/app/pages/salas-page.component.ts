@@ -6,7 +6,7 @@ import { SalaApiService } from '../crud/entity-api.services';
 import { SalaDto } from '../models';
 
 function vacio(): SalaDto {
-  return { id: '', nombre: '' };
+  return { id: '', nombre: '', color: '#000000' };
 }
 
 @Component({
@@ -23,10 +23,16 @@ function vacio(): SalaDto {
     <div class="error-box" *ngIf="error">{{ error }}</div>
 
     <table class="tabla-crud">
-      <thead><tr><th>Nombre</th><th></th></tr></thead>
+      <thead><tr><th>Nombre</th><th>Color</th><th></th></tr></thead>
       <tbody>
         <tr *ngFor="let s of salas">
           <td>{{ s.nombre }}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:24px; height:24px; border-radius:4px; border:1px solid #ccc; background-color:{{ s.color }}"></div>
+              <span style="font-size:0.9rem; color:#666;">{{ s.color }}</span>
+            </div>
+          </td>
           <td>
             <button (click)="editar(s)">Editar</button>
             <button (click)="eliminar(s)">Eliminar</button>
@@ -40,6 +46,14 @@ function vacio(): SalaDto {
     <div class="form-crud" *ngIf="editando">
       <h3>{{ formulario.id ? 'Editar' : 'Nueva' }} sala</h3>
       <label>Nombre <input [(ngModel)]="formulario.nombre" placeholder="ej. Gimnasio" /></label>
+      
+      <label style="margin-top:12px; display:block;">
+        Color
+        <div style="display:flex; align-items:center; gap:12px; margin-top:4px;">
+          <input type="color" [(ngModel)]="formulario.color" style="width:60px; height:40px; cursor:pointer;" />
+          <span style="font-size:0.9rem; color:#666; font-family:monospace;">{{ formulario.color }}</span>
+        </div>
+      </label>
 
       <div style="margin-top:12px; display:flex; gap:8px;">
         <button (click)="guardar()">Guardar</button>
