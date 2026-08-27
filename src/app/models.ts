@@ -23,7 +23,7 @@ export interface ProfesorDto {
 export interface SalaDto {
   id: string;
   nombre: string;
-  color?: string;
+  color?: string; // hexadecimal "#RRGGBB", identifica la sala por el color de su puerta
 }
 
 export interface CursoDto {
@@ -38,7 +38,9 @@ export interface RamoDto {
   cursoId: string;
   profesorId: string;
   horasSemanales: number;
-  salaId?: string;
+  // Obligatoria: la tupla del modelo es <Curso,Profesor,Ramo,Sala>. Cada ramo se dicta
+  // siempre en la misma sala (aula propia, gimnasio, laboratorio, etc).
+  salaId: string;
   horariosFijos?: TimeSlotDto[];
   sesionesActuales?: TimeSlotDto[];
   preferirManana?: boolean; // regla 5
@@ -70,6 +72,9 @@ export interface SesionResponse {
   profesorId: string;
   ramo: string;
   profesor: string;
+  salaId: string;
+  sala: string;
+  salaColor?: string;
   dia: number;
   bloque: number;
   movida: boolean;

@@ -21,22 +21,26 @@ const EJEMPLO_JSON: TimetableRequest = {
       noDisponible: [{ dia: 1, bloque: 1 }] }
   ],
   salas: [
-    { id: 'R1', nombre: 'Gimnasio' }
+    { id: 'R1', nombre: 'Gimnasio', color: '#FF7043' },
+    { id: 'R2', nombre: 'Sala 101', color: '#4CAF50' },
+    { id: 'R3', nombre: 'Sala 102', color: '#2196F3' }
   ],
   cursos: [
     { id: 'C1', nombre: 'II A' },
     { id: 'C2', nombre: 'II B', horaSalidaMaxima: '14:00' }
   ],
   ramos: [
-    { id: 'R-LEN-C1', nombre: 'Lenguaje', cursoId: 'C1', profesorId: 'P1', horasSemanales: 6, preferirManana: true },
-    { id: 'R-MAT-C1', nombre: 'Matematica', cursoId: 'C1', profesorId: 'P2', horasSemanales: 6, preferirManana: true },
-    { id: 'R-ORI-C1', nombre: 'Orientacion', cursoId: 'C1', profesorId: 'P1', horasSemanales: 1,
+    // Un mismo profesor puede dictar varios ramos a un mismo curso: P1 dicta tanto
+    // Lenguaje como Orientacion a II A. La tupla es <Curso,Profesor,Ramo,Sala>.
+    { id: 'R-LEN-C1', nombre: 'Lenguaje', cursoId: 'C1', profesorId: 'P1', horasSemanales: 6, salaId: 'R2', preferirManana: true },
+    { id: 'R-MAT-C1', nombre: 'Matematica', cursoId: 'C1', profesorId: 'P2', horasSemanales: 6, salaId: 'R2', preferirManana: true },
+    { id: 'R-ORI-C1', nombre: 'Orientacion', cursoId: 'C1', profesorId: 'P1', horasSemanales: 1, salaId: 'R2',
       horariosFijos: [{ dia: 4, bloque: 1 }] },
     { id: 'R-EDF-C1', nombre: 'Educacion Fisica', cursoId: 'C1', profesorId: 'P3', horasSemanales: 2, salaId: 'R1' },
 
-    { id: 'R-LEN-C2', nombre: 'Lenguaje', cursoId: 'C2', profesorId: 'P2', horasSemanales: 6, preferirManana: true },
-    { id: 'R-MAT-C2', nombre: 'Matematica', cursoId: 'C2', profesorId: 'P1', horasSemanales: 6, preferirManana: true },
-    { id: 'R-ORI-C2', nombre: 'Orientacion', cursoId: 'C2', profesorId: 'P2', horasSemanales: 1,
+    { id: 'R-LEN-C2', nombre: 'Lenguaje', cursoId: 'C2', profesorId: 'P2', horasSemanales: 6, salaId: 'R3', preferirManana: true },
+    { id: 'R-MAT-C2', nombre: 'Matematica', cursoId: 'C2', profesorId: 'P1', horasSemanales: 6, salaId: 'R3', preferirManana: true },
+    { id: 'R-ORI-C2', nombre: 'Orientacion', cursoId: 'C2', profesorId: 'P2', horasSemanales: 1, salaId: 'R3',
       horariosFijos: [{ dia: 4, bloque: 1 }] },
     { id: 'R-EDF-C2', nombre: 'Educacion Fisica', cursoId: 'C2', profesorId: 'P3', horasSemanales: 2, salaId: 'R1' }
   ]
@@ -90,6 +94,8 @@ const EJEMPLO_JSON: TimetableRequest = {
     </div>
 
     <p *ngIf="resultado" style="font-size:0.85rem; color:#555;">
+      El recuadro de color dentro de cada celda indica la sala asignada (identificada
+      por el color de su puerta) — pasa el mouse por encima para ver su nombre.
       Las celdas en amarillo son sesiones que quedaron en un bloque distinto al original
       (por ejemplo, porque el solver tuvo que reubicarlas al mover otra sesion).
       Usa el botón "Mover" dentro de una celda para reasignarla a otro dia/bloque.

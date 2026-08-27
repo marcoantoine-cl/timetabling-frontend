@@ -6,7 +6,7 @@ import { SalaApiService } from '../crud/entity-api.services';
 import { SalaDto } from '../models';
 
 function vacio(): SalaDto {
-  return { id: '', nombre: '', color: '#000000' };
+  return { id: '', nombre: '', color: '#4CAF50' };
 }
 
 @Component({
@@ -16,23 +16,18 @@ function vacio(): SalaDto {
   template: `
     <h1>Salas</h1>
     <p style="color:#555; font-size:0.9rem;">
-      Solo se necesitan aca las salas que son un recurso COMPARTIDO y escaso entre cursos
-      (ej. el Gimnasio). Las salas base de cada curso no se modelan: el conflicto de curso
-      ya se resuelve con la regla "un curso, un ramo a la vez".
+      Cada sala se identifica por el color de su puerta. Toda sesión de un ramo tiene
+      una sala asignada (aula propia del curso, gimnasio, laboratorio, etc.) — dos ramos
+      nunca pueden coincidir en la misma sala al mismo tiempo.
     </p>
     <div class="error-box" *ngIf="error">{{ error }}</div>
 
     <table class="tabla-crud">
-      <thead><tr><th>Nombre</th><th>Color</th><th></th></tr></thead>
+      <thead><tr><th>Color</th><th>Nombre</th><th></th></tr></thead>
       <tbody>
         <tr *ngFor="let s of salas">
+          <td><span class="swatch" [style.background]="s.color || '#ccc'"></span></td>
           <td>{{ s.nombre }}</td>
-          <td>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <div style="width:24px; height:24px; border-radius:4px; border:1px solid #ccc; background-color:{{ s.color }}"></div>
-              <span style="font-size:0.9rem; color:#666;">{{ s.color }}</span>
-            </div>
-          </td>
           <td>
             <button (click)="editar(s)">Editar</button>
             <button (click)="eliminar(s)">Eliminar</button>
@@ -45,13 +40,12 @@ function vacio(): SalaDto {
 
     <div class="form-crud" *ngIf="editando">
       <h3>{{ formulario.id ? 'Editar' : 'Nueva' }} sala</h3>
-      <label>Nombre <input [(ngModel)]="formulario.nombre" placeholder="ej. Gimnasio" /></label>
-      
-      <label style="margin-top:12px; display:block;">
-        Color
-        <div style="display:flex; align-items:center; gap:12px; margin-top:4px;">
-          <input type="color" [(ngModel)]="formulario.color" style="width:60px; height:40px; cursor:pointer;" />
-          <span style="font-size:0.9rem; color:#666; font-family:monospace;">{{ formulario.color }}</span>
+      <label>Nombre <input [(ngModel)]="formulario.nombre" placeholder="ej. Sala 101" /></label>
+      <label>
+        Color de la puerta (identifica la sala)
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input type="color" [(ngModel)]="formulario.color" />
+          <span>{{ formulario.color || '(sin color asignado)' }}</span>
         </div>
       </label>
 
@@ -60,7 +54,16 @@ function vacio(): SalaDto {
         <button (click)="cancelar()">Cancelar</button>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .swatch {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+  `]
 })
 export class SalasPageComponent implements OnInit {
 

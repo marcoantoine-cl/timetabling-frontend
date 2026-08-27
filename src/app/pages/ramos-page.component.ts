@@ -12,7 +12,7 @@ const DIAS = [
 ];
 
 function vacio(): RamoDto {
-  return { id: '', nombre: '', cursoId: '', profesorId: '', horasSemanales: 1, salaId: undefined,
+  return { id: '', nombre: '', cursoId: '', profesorId: '', horasSemanales: 1, salaId: '',
     preferirManana: false, horariosFijos: [] };
 }
 
@@ -34,7 +34,10 @@ function vacio(): RamoDto {
           <td>{{ nombreCurso(r.cursoId) }}</td>
           <td>{{ nombreProfesor(r.profesorId) }}</td>
           <td>{{ r.horasSemanales }}</td>
-          <td>{{ r.salaId ? nombreSala(r.salaId) : '—' }}</td>
+          <td>
+            <span class="swatch" [style.background]="colorSala(r.salaId) || '#ccc'"></span>
+            {{ nombreSala(r.salaId) }}
+          </td>
           <td>{{ r.preferirManana ? 'Si' : '—' }}</td>
           <td>{{ r.horariosFijos?.length ? r.horariosFijos!.length + ' sesion(es)' : '—' }}</td>
           <td>
@@ -68,9 +71,9 @@ function vacio(): RamoDto {
 
       <label>Horas semanales <input type="number" min="1" [(ngModel)]="formulario.horasSemanales" /></label>
 
-      <label>Sala compartida (opcional, ej. gimnasio)
+      <label>Sala
         <select [(ngModel)]="formulario.salaId">
-          <option [value]="undefined">(ninguna)</option>
+          <option value="" disabled>Selecciona una sala</option>
           <option *ngFor="let s of salas" [value]="s.id">{{ s.nombre }}</option>
         </select>
       </label>
@@ -104,7 +107,18 @@ function vacio(): RamoDto {
         <button (click)="cancelar()">Cancelar</button>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+  `]
 })
 export class RamosPageComponent implements OnInit {
 
@@ -159,6 +173,10 @@ export class RamosPageComponent implements OnInit {
 
   nombreSala(id: string): string {
     return this.salas.find((s) => s.id === id)?.nombre ?? id;
+  }
+
+  colorSala(id: string): string | undefined {
+    return this.salas.find((s) => s.id === id)?.color;
   }
 
   nombreDia(dia: number): string {
