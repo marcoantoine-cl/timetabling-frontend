@@ -23,6 +23,7 @@ export interface ProfesorDto {
 export interface SalaDto {
   id: string;
   nombre: string;
+  color?: string;
 }
 
 export interface CursoDto {
