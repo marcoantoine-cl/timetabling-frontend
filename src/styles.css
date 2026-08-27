@@ -1,0 +1,192 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 24px;
+  background: #f5f6f8;
+  color: #222;
+}
+
+h1 {
+  font-size: 1.4rem;
+}
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+button {
+  cursor: pointer;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #2c5cc5;
+  color: white;
+  font-size: 0.9rem;
+}
+
+button:disabled {
+  background: #9aa8c7;
+  cursor: not-allowed;
+}
+
+.error-box {
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  color: #611a15;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 12px 0;
+  white-space: pre-wrap;
+}
+
+.score-box {
+  margin: 12px 0;
+  font-weight: 600;
+}
+
+.score-box.no-factible {
+  color: #b3261e;
+}
+
+.score-box.factible {
+  color: #1e7c34;
+}
+
+table.horario {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 32px;
+  background: white;
+}
+
+table.horario caption {
+  text-align: left;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+table.horario th, table.horario td {
+  border: 1px solid #d7dbe0;
+  padding: 8px;
+  text-align: center;
+  vertical-align: top;
+  min-width: 110px;
+}
+
+table.horario th {
+  background: #eef1f6;
+}
+
+.celda-ramo {
+  font-weight: 600;
+}
+
+.celda-profesor {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+/* --- Paginas CRUD --- */
+
+table.tabla-crud {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  margin-bottom: 16px;
+}
+
+table.tabla-crud th, table.tabla-crud td {
+  border: 1px solid #d7dbe0;
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+table.tabla-crud th {
+  background: #eef1f6;
+}
+
+table.tabla-crud td button {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  margin-right: 6px;
+  background: #eef1f6;
+  color: #222;
+}
+
+table.tabla-crud td button:last-child {
+  background: #fdecea;
+  color: #611a15;
+}
+
+.form-crud {
+  background: white;
+  border: 1px solid #d7dbe0;
+  border-radius: 6px;
+  padding: 16px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.form-crud label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-crud label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-crud input, .form-crud select {
+  font-size: 0.9rem;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-weight: 400;
+}
+
+.no-disponible-editor {
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef1f6;
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  margin: 2px 4px 2px 0;
+}
+
+.chip-x {
+  background: none;
+  color: #611a15;
+  padding: 0;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.agregar-no-disponible {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}

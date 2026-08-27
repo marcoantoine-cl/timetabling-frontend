@@ -1,0 +1,111 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { SalaApiService } from '../crud/entity-api.services';
+import { SalaDto } from '../models';
+
+function vacio(): SalaDto {
+  return { id: '', nombre: '' };
+}
+
+@Component({
+  selector: 'app-salas-page',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <h1>Salas</h1>
+    <p style="color:#555; font-size:0.9rem;">
+      Solo se necesitan aca las salas que son un recurso COMPARTIDO y escaso entre cursos
+      (ej. el Gimnasio). Las salas base de cada curso no se modelan: el conflicto de curso
+      ya se resuelve con la regla "un curso, un ramo a la vez".
+    </p>
+    <div class="error-box" *ngIf="error">{{ error }}</div>
+
+    <table class="tabla-crud">
+      <thead><tr><th>Nombre</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let s of salas">
+          <td>{{ s.nombre }}</td>
+          <td>
+            <button (click)="editar(s)">Editar</button>
+            <button (click)="eliminar(s)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button (click)="nuevo()" *ngIf="!editando">+ Nueva sala</button>
+
+    <div class="form-crud" *ngIf="editando">
+      <h3>{{ formulario.id ? 'Editar' : 'Nueva' }} sala</h3>
+      <label>Nombre <input [(ngModel)]="formulario.nombre" placeholder="ej. Gimnasio" /></label>
+
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button (click)="guardar()">Guardar</button>
+        <button (click)="cancelar()">Cancelar</button>
+      </div>
+    </div>
+  `
+})
+export class SalasPageComponent implements OnInit {
+
+  salas: SalaDto[] = [];
+  editando = false;
+  formulario: SalaDto = vacio();
+  error: string | null = null;
+
+  constructor(private api: SalaApiService) {}
+
+  ngOnInit(): void {
+    this.cargar();
+  }
+
+  cargar(): void {
+    this.api.listar().subscribe({
+      next: (lista) => (this.salas = lista),
+      error: (err) => this.manejarError(err)
+    });
+  }
+
+  nuevo(): void {
+    this.formulario = vacio();
+    this.editando = true;
+  }
+
+  editar(s: SalaDto): void {
+    this.formulario = { ...s };
+    this.editando = true;
+  }
+
+  cancelar(): void {
+    this.editando = false;
+  }
+
+  guardar(): void {
+    this.error = null;
+    const accion = this.formulario.id
+      ? this.api.actualizar(this.formulario.id, this.formulario)
+      : this.api.crear(this.formulario);
+
+    accion.subscribe({
+      next: () => {
+        this.editando = false;
+        this.cargar();
+      },
+      error: (err) => this.manejarError(err)
+    });
+  }
+
+  eliminar(s: SalaDto): void {
+    if (!confirm(`¿Eliminar la sala "${s.nombre}"?`)) return;
+    this.api.eliminar(s.id).subscribe({
+      next: () => this.cargar(),
+      error: (err) => this.manejarError(err)
+    });
+  }
+
+  private manejarError(err: HttpErrorResponse): void {
+    this.error = err.error?.message ?? err.message ?? 'Error al comunicarse con el backend';
+  }
+}
