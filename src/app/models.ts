@@ -5,6 +5,15 @@ export interface TimeSlotDto {
   bloque: number;
 }
 
+// Representa el estado COMPLETO de una sesion: cuando (dia/bloque) y donde (sala).
+// salaId es obligatorio en sesionesActuales (para /verificar) y opcional en
+// MoverSesionRequest.nuevoSlot (si se omite, la sesion mantiene la sala que ya tenia).
+export interface AsignacionSesionDto {
+  dia: number;
+  bloque: number;
+  salaId?: string;
+}
+
 export interface BloqueHorarioDto {
   numero: number;
   horaInicio: string; // "HH:mm"
@@ -23,6 +32,7 @@ export interface ProfesorDto {
 export interface SalaDto {
   id: string;
   nombre: string;
+  color?: string; // hexadecimal "#RRGGBB", identifica la sala por el color de su puerta
 }
 
 export interface CursoDto {
@@ -37,9 +47,10 @@ export interface RamoDto {
   cursoId: string;
   profesorId: string;
   horasSemanales: number;
-  salaId?: string;
+  // La sala NO es un dato fijo del ramo: es una variable de planificacion por sesion
+  // que decide el solver (puede variar de un dia a otro para el mismo ramo).
   horariosFijos?: TimeSlotDto[];
-  sesionesActuales?: TimeSlotDto[];
+  sesionesActuales?: AsignacionSesionDto[];
   preferirManana?: boolean; // regla 5
 }
 
@@ -69,6 +80,9 @@ export interface SesionResponse {
   profesorId: string;
   ramo: string;
   profesor: string;
+  salaId: string;
+  sala: string;
+  salaColor?: string;
   dia: number;
   bloque: number;
   movida: boolean;
@@ -91,5 +105,5 @@ export interface MoverSesionRequest {
   horario: TimetableRequest;
   ramoId: string;
   indiceSesion: number;
-  nuevoSlot: TimeSlotDto;
+  nuevoSlot: AsignacionSesionDto;
 }

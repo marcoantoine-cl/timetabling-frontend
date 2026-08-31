@@ -1,13 +1,16 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SesionResponse } from './models';
+import { SesionResponse, SalaDto } from './models';
 
 interface Celda {
   ramoId: string;
   indiceSesion: number;
   lineaPrincipal: string; // por curso: nombre del ramo; por profesor: curso + ramo
   lineaSecundaria: string; // por curso: profesor; por profesor: (vacio, ya esta en lineaPrincipal)
+  salaId: string;
+  salaNombre: string;
+  salaColor?: string;
   movida: boolean;
 }
 
@@ -24,6 +27,7 @@ export interface MoverSesionEvent {
   indiceSesion: number;
   nuevoDia: number;
   nuevoBloque: number;
+  nuevaSalaId: string;
 }
 
 const NOMBRES_DIA: Record<number, string> = {
@@ -56,8 +60,13 @@ const NOMBRES_DIA: Record<number, string> = {
                 [class.celda-movida]="celda?.movida"
                 [class.celda-editando]="esCeldaEnEdicion(celda, bloqueIdx + 1, diaIdx + 1)">
               <ng-container *ngIf="celda; else vacio">
-                <div class="celda-ramo">{{ celda.lineaPrincipal }}</div>
+                <div class="celda-encabezado">
+                  <span class="sala-swatch" [style.background]="celda.salaColor || '#ccc'"
+                        [title]="'Sala: ' + celda.salaNombre"></span>
+                  <div class="celda-ramo">{{ celda.lineaPrincipal }}</div>
+                </div>
                 <div class="celda-profesor" *ngIf="celda.lineaSecundaria">{{ celda.lineaSecundaria }}</div>
+                <div class="celda-sala">{{ celda.salaNombre }}</div>
 
                 <button class="btn-editar" *ngIf="editable && !enEdicion" (click)="empezarEdicion(celda, bloqueIdx + 1, diaIdx + 1)">
                   Mover
@@ -69,6 +78,9 @@ const NOMBRES_DIA: Record<number, string> = {
                   </select>
                   <select [(ngModel)]="bloqueDestino">
                     <option *ngFor="let b of bloquesVisibles" [value]="b">{{ b }}</option>
+                  </select>
+                  <select [(ngModel)]="salaDestino">
+                    <option *ngFor="let s of salas" [value]="s.id">{{ s.nombre }}</option>
                   </select>
                   <button (click)="confirmarMovimiento(celda)">OK</button>
                   <button (click)="cancelarEdicion()">X</button>
@@ -84,6 +96,16 @@ const NOMBRES_DIA: Record<number, string> = {
   styles: [`
     .celda-movida { background: #fff6d8; }
     .celda-editando { background: #e8f0fe; }
+    .celda-encabezado { display: flex; align-items: center; gap: 5px; justify-content: center; }
+    .sala-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      border: 1px solid rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+    .celda-sala { font-size: 0.7rem; color: #888; }
     .btn-editar { font-size: 0.7rem; padding: 2px 6px; margin-top: 4px; }
     .editor-celda { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
     .editor-celda select { font-size: 0.75rem; }
@@ -98,6 +120,7 @@ export class TimetableViewComponent implements OnChanges {
   @Input() bloquesPorDia = 8;
   @Input() editable = false;
   @Input() agruparPor: AgruparPor = 'curso';
+  @Input() salas: SalaDto[] = [];
 
   @Output() moverSesion = new EventEmitter<MoverSesionEvent>();
 
@@ -108,6 +131,7 @@ export class TimetableViewComponent implements OnChanges {
   enEdicion: { ramoId: string; indiceSesion: number; dia: number; bloque: number } | null = null;
   diaDestino = 1;
   bloqueDestino = 1;
+  salaDestino = '';
 
   ngOnChanges(): void {
     this.diasVisibles = Array.from({ length: this.dias }, (_, i) => i + 1);
@@ -138,6 +162,9 @@ export class TimetableViewComponent implements OnChanges {
               indiceSesion: sesion.indiceSesion,
               lineaPrincipal: sesion.ramo,
               lineaSecundaria: sesion.profesor,
+              salaId: sesion.salaId,
+              salaNombre: sesion.sala,
+              salaColor: sesion.salaColor,
               movida: sesion.movida
             }
           : {
@@ -145,6 +172,9 @@ export class TimetableViewComponent implements OnChanges {
               indiceSesion: sesion.indiceSesion,
               lineaPrincipal: sesion.ramo,
               lineaSecundaria: sesion.curso,
+              salaId: sesion.salaId,
+              salaNombre: sesion.sala,
+              salaColor: sesion.salaColor,
               movida: sesion.movida
             };
       }
@@ -165,6 +195,7 @@ export class TimetableViewComponent implements OnChanges {
     this.enEdicion = { ramoId: celda.ramoId, indiceSesion: celda.indiceSesion, dia: diaActual, bloque: bloqueActual };
     this.diaDestino = diaActual;
     this.bloqueDestino = bloqueActual;
+    this.salaDestino = celda.salaId;
   }
 
   cancelarEdicion(): void {
@@ -184,7 +215,8 @@ export class TimetableViewComponent implements OnChanges {
       ramoId: celda.ramoId,
       indiceSesion: celda.indiceSesion,
       nuevoDia: Number(this.diaDestino),
-      nuevoBloque: Number(this.bloqueDestino)
+      nuevoBloque: Number(this.bloqueDestino),
+      nuevaSalaId: this.salaDestino
     });
     this.enEdicion = null;
   }

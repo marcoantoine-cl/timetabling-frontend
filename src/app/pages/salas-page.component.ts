@@ -6,7 +6,7 @@ import { SalaApiService } from '../crud/entity-api.services';
 import { SalaDto } from '../models';
 
 function vacio(): SalaDto {
-  return { id: '', nombre: '' };
+  return { id: '', nombre: '', color: '#4CAF50' };
 }
 
 @Component({
@@ -16,16 +16,18 @@ function vacio(): SalaDto {
   template: `
     <h1>Salas</h1>
     <p style="color:#555; font-size:0.9rem;">
-      Solo se necesitan aca las salas que son un recurso COMPARTIDO y escaso entre cursos
-      (ej. el Gimnasio). Las salas base de cada curso no se modelan: el conflicto de curso
-      ya se resuelve con la regla "un curso, un ramo a la vez".
+      Cada sala se identifica por el color de su puerta. La sala NO se fija por ramo:
+      el solver la asigna a cada sesión de forma independiente — un mismo ramo puede
+      terminar con sesiones en salas distintas según el día. Dos sesiones nunca pueden
+      coincidir en la misma sala al mismo tiempo.
     </p>
     <div class="error-box" *ngIf="error">{{ error }}</div>
 
     <table class="tabla-crud">
-      <thead><tr><th>Nombre</th><th></th></tr></thead>
+      <thead><tr><th>Color</th><th>Nombre</th><th></th></tr></thead>
       <tbody>
         <tr *ngFor="let s of salas">
+          <td><span class="swatch" [style.background]="s.color || '#ccc'"></span></td>
           <td>{{ s.nombre }}</td>
           <td>
             <button (click)="editar(s)">Editar</button>
@@ -39,14 +41,30 @@ function vacio(): SalaDto {
 
     <div class="form-crud" *ngIf="editando">
       <h3>{{ formulario.id ? 'Editar' : 'Nueva' }} sala</h3>
-      <label>Nombre <input [(ngModel)]="formulario.nombre" placeholder="ej. Gimnasio" /></label>
+      <label>Nombre <input [(ngModel)]="formulario.nombre" placeholder="ej. Sala 101" /></label>
+      <label>
+        Color de la puerta (identifica la sala)
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input type="color" [(ngModel)]="formulario.color" />
+          <span>{{ formulario.color || '(sin color asignado)' }}</span>
+        </div>
+      </label>
 
       <div style="margin-top:12px; display:flex; gap:8px;">
         <button (click)="guardar()">Guardar</button>
         <button (click)="cancelar()">Cancelar</button>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .swatch {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+  `]
 })
 export class SalasPageComponent implements OnInit {
 

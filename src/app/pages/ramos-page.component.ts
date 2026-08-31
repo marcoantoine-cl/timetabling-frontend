@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
-import { RamoApiService, CursoApiService, ProfesorApiService, SalaApiService } from '../crud/entity-api.services';
-import { RamoDto, CursoDto, ProfesorDto, SalaDto, TimeSlotDto } from '../models';
+import { RamoApiService, CursoApiService, ProfesorApiService } from '../crud/entity-api.services';
+import { RamoDto, CursoDto, ProfesorDto, TimeSlotDto } from '../models';
 
 const DIAS = [
   { valor: 1, nombre: 'Lunes' }, { valor: 2, nombre: 'Martes' }, { valor: 3, nombre: 'Miercoles' },
@@ -12,7 +12,7 @@ const DIAS = [
 ];
 
 function vacio(): RamoDto {
-  return { id: '', nombre: '', cursoId: '', profesorId: '', horasSemanales: 1, salaId: undefined,
+  return { id: '', nombre: '', cursoId: '', profesorId: '', horasSemanales: 1,
     preferirManana: false, horariosFijos: [] };
 }
 
@@ -22,11 +22,16 @@ function vacio(): RamoDto {
   imports: [CommonModule, FormsModule],
   template: `
     <h1>Ramos</h1>
+    <p style="color:#555; font-size:0.9rem;">
+      La sala NO se define aca: es una variable de planificación que el solver decide por
+      cada sesión (un mismo ramo puede terminar en salas distintas según el día). La sala
+      asignada se ve en la vista de Horario, dentro de cada celda.
+    </p>
     <div class="error-box" *ngIf="error">{{ error }}</div>
 
     <table class="tabla-crud">
       <thead>
-        <tr><th>Nombre</th><th>Curso</th><th>Profesor</th><th>H/sem</th><th>Sala</th><th>Manana</th><th>Fijo</th><th></th></tr>
+        <tr><th>Nombre</th><th>Curso</th><th>Profesor</th><th>H/sem</th><th>Manana</th><th>Fijo</th><th></th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let r of ramos">
@@ -34,7 +39,6 @@ function vacio(): RamoDto {
           <td>{{ nombreCurso(r.cursoId) }}</td>
           <td>{{ nombreProfesor(r.profesorId) }}</td>
           <td>{{ r.horasSemanales }}</td>
-          <td>{{ r.salaId ? nombreSala(r.salaId) : '—' }}</td>
           <td>{{ r.preferirManana ? 'Si' : '—' }}</td>
           <td>{{ r.horariosFijos?.length ? r.horariosFijos!.length + ' sesion(es)' : '—' }}</td>
           <td>
@@ -68,13 +72,6 @@ function vacio(): RamoDto {
 
       <label>Horas semanales <input type="number" min="1" [(ngModel)]="formulario.horasSemanales" /></label>
 
-      <label>Sala compartida (opcional, ej. gimnasio)
-        <select [(ngModel)]="formulario.salaId">
-          <option [value]="undefined">(ninguna)</option>
-          <option *ngFor="let s of salas" [value]="s.id">{{ s.nombre }}</option>
-        </select>
-      </label>
-
       <label class="checkbox">
         <input type="checkbox" [(ngModel)]="formulario.preferirManana" />
         Preferir horario de manana (regla 5)
@@ -94,8 +91,8 @@ function vacio(): RamoDto {
           <button (click)="agregarHorarioFijo()">Agregar</button>
         </div>
         <p style="font-size:0.8rem; color:#777;">
-          Debe haber como maximo tantos horarios fijos como horas semanales.
-          Las sesiones restantes quedan libres para que el solver las ubique.
+          Debe haber como maximo tantos horarios fijos como horas semanales (fija el HORARIO,
+          no la sala). Las sesiones restantes quedan libres para que el solver las ubique.
         </p>
       </div>
 
@@ -111,7 +108,6 @@ export class RamosPageComponent implements OnInit {
   ramos: RamoDto[] = [];
   cursos: CursoDto[] = [];
   profesores: ProfesorDto[] = [];
-  salas: SalaDto[] = [];
 
   editando = false;
   formulario: RamoDto = vacio();
@@ -124,8 +120,7 @@ export class RamosPageComponent implements OnInit {
   constructor(
     private ramoApi: RamoApiService,
     private cursoApi: CursoApiService,
-    private profesorApi: ProfesorApiService,
-    private salaApi: SalaApiService
+    private profesorApi: ProfesorApiService
   ) {}
 
   ngOnInit(): void {
@@ -136,14 +131,12 @@ export class RamosPageComponent implements OnInit {
     forkJoin({
       ramos: this.ramoApi.listar(),
       cursos: this.cursoApi.listar(),
-      profesores: this.profesorApi.listar(),
-      salas: this.salaApi.listar()
+      profesores: this.profesorApi.listar()
     }).subscribe({
-      next: ({ ramos, cursos, profesores, salas }) => {
+      next: ({ ramos, cursos, profesores }) => {
         this.ramos = ramos;
         this.cursos = cursos;
         this.profesores = profesores;
-        this.salas = salas;
       },
       error: (err) => this.manejarError(err)
     });
@@ -155,10 +148,6 @@ export class RamosPageComponent implements OnInit {
 
   nombreProfesor(id: string): string {
     return this.profesores.find((p) => p.id === id)?.nombre ?? id;
-  }
-
-  nombreSala(id: string): string {
-    return this.salas.find((s) => s.id === id)?.nombre ?? id;
   }
 
   nombreDia(dia: number): string {
